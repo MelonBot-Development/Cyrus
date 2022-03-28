@@ -15,6 +15,7 @@ use actix_web::http::header::SERVER;
 use log::info;
 use serde_json::json;
 use redis_async::client::PairedConnection;
+use webhook::Webhook;
 
 #[derive(Clone)]
 pub struct Redis {
@@ -45,15 +46,17 @@ async fn main() -> std::io::Result<()> {
     env_logger::init();
 
     info!("Loading config...");
-    let config = config::load_config();
+    let config = config::load_config()
         .expect("Configuration to be loaded");
 
     info!("Connecting to redis...");
-    let redis = Redis::new(format!("{}:{}", config.redis.host, config.redis.port));
+    let redis = Redis::new(format!("{}:{}", config.redis.host, config.redis.port))
         .await
-        .expect("Failed to connect to redis")
+        .expect("Failed to connect to redis");
 
-    info!("Starting Voting API Server...")
+    let webhook = Webhook::from_url(&config.webhook.url);
+
+    info!("Starting Voting API Server...");
 
     let addr = format!("{}:{}", config.host, config.port);
     let json_config = web::JsonConfig::default()
