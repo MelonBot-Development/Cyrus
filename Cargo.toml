@@ -14,3 +14,5 @@ redis-async = { version = "0.12.0", features = [ "tokio10" ] }
 env_logger = "0.9.0"
 figment = { version = "0.10.6", features = [ "toml", "env" ] }
 reqwest = { version = "0.11.8", features = [ "rustls" ] }
+webhook = { git = "https://github.com/Melon-Development-ZUI/webhook" }
+tokio = "0.14.0"
