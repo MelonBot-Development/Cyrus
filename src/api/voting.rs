@@ -13,6 +13,7 @@ use serde::{
     Serialize
 };
 use serde_json::json;
+use webhook::Webhook;
 
 use crate::{
     HttpResponse,
@@ -77,6 +78,16 @@ async fn post_top_gg_vote(
     redis
         .get()
         .send_and_forget(resp_array!["SET", key, serde_json::to_string(&payload).unwrap(), "Ex", "720"]);
+
+    webhook.send(|m| m.embed(|e| {
+        let desc = format!("<@{user}> ({user}) voted for <@{bot}> ({bot})", bot = payload.bot, user = payload.user);
+
+        e.description(&desc)
+            .color(config.votes.webhook.color)
+            .footer("Enjoy the perks <3", None, None)
+    }))
+        .await
+        .expect("Unable to post webhook");
 
     HttpResponse::Ok().json(json!({ "message": "thanks :3", "success": true }))
 }
