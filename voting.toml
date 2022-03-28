@@ -1,0 +1,13 @@
+host = ""
+port = 3000
+
+[weebhook]
+url = ""
+color = 0x2f3136
+
+[auth]
+top_gg = ""
+
+[redis]
+host = ""
+port = 5000
