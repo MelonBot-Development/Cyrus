@@ -1,0 +1,21 @@
+version: "1.0"
+services:
+    cyrus:
+        restart: unless-stopped
+        build:
+            context: .
+        networks:
+            - cyrus
+        depends_on:
+            - redis
+        evnironment:
+            - RUST_LOG=info
+            - API_REDIS_HOST=redis
+    redis:
+        image: redis:alpine
+        restart: unless-stopped
+        networks:
+            - cyrus
+
+networks:
+    cyrus:
