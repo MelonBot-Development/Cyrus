@@ -1,4 +1,5 @@
 mod api;
+mod config;
 
 use actix_web::{
     HttpResponseBuilder,
@@ -43,14 +44,18 @@ async fn index() -> impl Responder {
 async fn main() -> std::io::Result<()> {
     env_logger::init();
 
+    info!("Loading config...");
+    let config = config::load_config();
+        .expect("Configuration to be loaded");
+
     info!("Connecting to redis...");
-    let redis = Redis::new(format!("{}:{}"))
+    let redis = Redis::new(format!("{}:{}", config.redis.host, config.redis.port));
         .await
         .expect("Failed to connect to redis")
 
     info!("Starting Voting API Server...")
 
-    let addr = format!("{}:{}");
+    let addr = format!("{}:{}", config.host, config.port);
     let json_config = web::JsonConfig::default()
         .error_handler(|err, _| {
             let res = HttpResponseBuilder::new(err.status_code())
@@ -60,6 +65,7 @@ async fn main() -> std::io::Result<()> {
         });
 
     HttpServer::new(move || App::new()
+        .app_data(web::Data::new(config.clone()))
         .app_data(web::Data::new(redis.clone()))
         .app_data(web::Data::new(json_config.clone()))
         .app_data(web::Data::new(webhook.clone()))
